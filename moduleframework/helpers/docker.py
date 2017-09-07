@@ -6,6 +6,7 @@ import random
 import subprocess
 import time
 import logging
+from nose.tools import assert_raises
 
 logger = logging
 logger.basicConfig(format='%(levelname)s: Docker : %(message)s', level=logging.DEBUG)
@@ -196,7 +197,10 @@ def test_docker():
     # simplier case
     cont2 = Container(image2)
     assert "sbin" in cont2.run("ls /")
-    cont2.clean()
+    # test if raise is raised in case bad volume mapping
+    assert_raises(subprocess.CalledProcessError, cont2.run,"nonexisting command")
+
+
 
 
 if __name__ == "__main__":
