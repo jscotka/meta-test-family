@@ -27,7 +27,7 @@ def run_cmd(cmd, raw=False, **kwargs):
 
 def random_str():
     random_size = 10
-    return ''.join(random.choice(string.ascii_uppercase + string.digits)
+    return ''.join(random.choice(string.ascii_lowercase)
                    for _ in range(random_size))
 
 class Image(object):
