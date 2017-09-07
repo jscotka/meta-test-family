@@ -197,8 +197,11 @@ def test_docker():
     # simplier case
     cont2 = Container(image2)
     assert "sbin" in cont2.run("ls /")
-    # test if raise is raised in case bad volume mapping
+    # test if raise is raised in case nonexisting command
     assert_raises(subprocess.CalledProcessError, cont2.run,"nonexisting command")
+
+    # test if raise is raised in case bad volume mapping
+    assert_raises(subprocess.CalledProcessError, cont2.run, "ls /", docker_params="-v abc:cba")
 
 
 
