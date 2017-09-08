@@ -1,34 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import json
-import string
-import random
-import subprocess
 import time
-import logging
+from mtf.utils import *
+
+
 from nose.tools import assert_raises
 
-logger = logging
-logger.basicConfig(format='%(levelname)s: Docker : %(message)s', level=logging.DEBUG)
-
-def run_cmd(cmd, raw=False, **kwargs):
-    output = None
-
-    if not raw:
-        logger.debug("Command: %s" % cmd)
-        if isinstance(cmd,str):
-            output = subprocess.check_output(cmd.split(" "), **kwargs)
-        else:
-            output = subprocess.check_output(cmd, **kwargs)
-    else:
-        logger.debug("Command (raw): %s" % cmd)
-        output = subprocess.Popen(cmd, **kwargs)
-    return output
-
-def random_str():
-    random_size = 10
-    return ''.join(random.choice(string.ascii_lowercase)
-                   for _ in range(random_size))
 
 class Image(object):
     def __init__(self, container, tag=None, random_name_size=10):
@@ -104,10 +82,10 @@ class Container(object):
     def get_ip(self):
         return self.inspect()["NetworkSettings"]["IPAddress"]
 
-    def start(self, command, docker_default_params="-it -d", **kwargs):
+    def start(self, command="", docker_params="-it -d", **kwargs):
         if not self.docker_id:
             self.__occupied = True
-            output = self.run(command, docker_params=docker_default_params, **kwargs)
+            output = self.run(command, docker_params=docker_params, **kwargs)
             self.docker_id = output.split("\n")[-2].strip()
         else:
             raise BaseException("Container already running on background")
@@ -115,8 +93,8 @@ class Container(object):
     def execute(self, command, **kwargs):
         return run_cmd(["docker", "container", "exec", self.tag, "/bin/bash", "-c", command], **kwargs)
 
-    def run(self, command, docker_params="", **kwargs):
-        command = command.split(" ")
+    def run(self, command="", docker_params="", **kwargs):
+        command = command.split(" ") if command else []
         additional_params = docker_params.split(" ") if docker_params else []
         cmdline=["docker", "container", "run","--name", self.tag] + additional_params + [self.image.tag] + command
         output = run_cmd(cmdline, **kwargs)
@@ -202,9 +180,6 @@ def test_docker():
 
     # test if raise is raised in case bad volume mapping
     assert_raises(subprocess.CalledProcessError, cont2.run, "ls /", docker_params="-v abc:cba")
-
-
-
 
 if __name__ == "__main__":
     test_image()
