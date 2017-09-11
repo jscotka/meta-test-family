@@ -23,10 +23,9 @@ class PostgresqlContainerFactory(Container):
             self.postgre_start()
 
 
-    def postgre_start(self, docker_additional_params=[], docker_default_params=default_env):
-        params_dir = self.default_env
-        if self.docker_add_params:
-            params_dir += self.docker_add_params
+    def postgre_start(self, docker_additional_params=[], docker_default_params=[]):
+        params_dir = docker_default_params or self.default_env
+        params_dir += docker_additional_params or self.docker_add_params
         params = " ".join(params_dir)
         self.start(docker_params=params)
         Probe().wait_inet_port(self.get_ip(),5432, count=20)
@@ -47,10 +46,21 @@ class Basic(Test):
         self.assertTrue(container.life_check())
         container.clean()
 
+    def test_additional_volume(self):
+        container = PostgresqlContainerFactory()
+        vol1 = Volume(target="/tmp", force_selinux=True)
+        container.postgre_start(docker_additional_params=[vol1.docker()])
+        self.assertTrue(container.life_check())
+        container.execute("touch /tmp/xx")
+        time.sleep(1)
+        run_cmd("test -f %s/xx" % vol1.get_source())
+        container.clean()
+        vol1.clean()
+
     def test_NoOpFails(self):
         self.assertRaises(subprocess.CalledProcessError,
                           PostgresqlContainerFactory,
-                          docker_default_params=["-a -b"],
+                          docker_default_params=["--abgc"],
                           start=True)
 
     def test_badInvocation(self):

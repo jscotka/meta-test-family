@@ -49,6 +49,7 @@ class Volume(object):
             self.set_facl(facl)
         if selinux_type:
             self.set_selinux(selinux_type)
+        logger.debug("Volume directory: %s" % self.directory)
 
     def set_target(self, target):
         self.target = target
