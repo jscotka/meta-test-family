@@ -4,10 +4,6 @@ import json
 import time
 from mtf.utils import *
 
-
-from nose.tools import assert_raises
-
-
 class Image(object):
     def __init__(self, container, tag=None, random_name_size=10):
         self.tag = tag or random_str()
@@ -155,6 +151,7 @@ def test_docker():
 
     :return:
     """
+    from nose.tools import assert_raises
     image1 = Image("fedora", tag="ahoj")
     image2 = Image("fedora", tag="hallo")
     # complex case
