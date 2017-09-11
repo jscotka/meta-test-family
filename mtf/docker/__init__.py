@@ -162,7 +162,7 @@ def test_docker():
     assert "172" in cont1.get_ip()
     assert "sbin" in cont1.execute("ls /")
     cont1.install_packages("nc")
-    bckgrnd = cont1.execute("nohup nc -l 1234", raw=True, stdout=subprocess.PIPE)
+    bckgrnd = cont1.execute("nc -l 1234", raw=True, stdout=subprocess.PIPE)
     time.sleep(1)
     bckgrnd2 = run_cmd(["nc", cont1.get_ip(), "1234"], raw=True, stdin=subprocess.PIPE)
     bckgrnd2.communicate(input="ahoj")
