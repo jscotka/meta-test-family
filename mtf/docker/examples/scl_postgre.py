@@ -3,7 +3,7 @@
 from mtf.docker import *
 from mtf.utils import *
 from avocado import Test
-import os, time
+import os
 
 TIMEOUT = 5
 
@@ -29,7 +29,7 @@ class PostgresqlContainerFactory(Container):
             params_dir += self.docker_add_params
         params = " ".join(params_dir)
         self.start(docker_params=params)
-        time.sleep(TIMEOUT)
+        Probe().wait_inet_port(self.get_ip(),5432, count=20)
 
     def life_check(self):
         my_env = os.environ.copy()
